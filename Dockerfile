@@ -20,4 +20,4 @@ RUN dotnet publish "PrivateServerWithCorsAllOrigins.csproj" -c Release -o /app/p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-CMD ASPNETCORE_URLS=https://*:$PORT dotnet PrivateServerWithCorsAllOrigins.dll
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet PrivateServerWithCorsAllOrigins.dll
