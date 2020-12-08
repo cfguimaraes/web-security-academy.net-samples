@@ -21,16 +21,19 @@ namespace PrivateServerWithCorsAllOrigins.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery]string cookie)
+        public IActionResult Get([FromQuery] string url, [FromQuery] string cookie)
         {
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(cookie)) return BadRequest();
+
             var webClient = new WebClient();
             webClient.Headers.Add("Cookie", cookie);
-            var html = webClient.DownloadString("https://acbb1fdf1f3e0a02807b33ec0085001e.web-security-academy.net/email");
+            var html = webClient.DownloadString(url);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
             var allInputs = doc.DocumentNode.Descendants().Where(x => x.Name == "input");
-            var csrfInput = allInputs.Last();
+            var csrfInput = allInputs.FirstOrDefault(x => x.Attributes.Any(y => y.Value == "csrf"));
+            if (csrfInput is null) return Conflict();
 
             return Ok(csrfInput.Attributes["value"].Value);
         }
